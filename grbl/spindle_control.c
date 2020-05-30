@@ -37,7 +37,8 @@ void spindle_init()
     // combined unless configured otherwise.
     SPINDLE_PWM_DDR |= (1<<SPINDLE_PWM_BIT); // Configure as PWM output pin.
     SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
-    SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
+    // SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
+    SPINDLE_TCCRB_REGISTER = (SPINDLE_TCCRB_REGISTER & 0b11111000) | 0x07;
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
     #else
@@ -138,7 +139,7 @@ void spindle_stop()
       }
     #else
       if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
-        SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
+        SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.
       } else {
         SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.
       }
@@ -195,16 +196,16 @@ void spindle_stop()
     uint8_t spindle_compute_pwm_value(float rpm) // 328p PWM register is 8-bit.
     {
       uint8_t pwm_value;
-      rpm *= (0.010*sys.spindle_speed_ovr); // Scale by spindle speed override value.
+      // rpm *= (0.010*sys.spindle_speed_ovr); // Scale by spindle speed override value.
       // Calculate PWM register value based on rpm max/min settings and programmed rpm.
-      if ((settings.rpm_min >= settings.rpm_max) || (rpm >= settings.rpm_max)) {
+      if ((settings.rpm_min >= settings.rpm_max) || (rpm >= SPINDLE_MAX_RPM)) {
         // No PWM range possible. Set simple on/off spindle control pin state.
         sys.spindle_speed = settings.rpm_max;
-        pwm_value = SPINDLE_PWM_MAX_VALUE;
+        pwm_value = SPINDLE_PWM_MAX_VALUE_;
       } else if (rpm <= settings.rpm_min) {
         if (rpm == 0.0) { // S0 disables spindle
-          sys.spindle_speed = 0.0;
-          pwm_value = SPINDLE_PWM_OFF_VALUE;
+          sys.spindle_speed = settings.rpm_min;
+          pwm_value = SPINDLE_PWM_MIN_VALUE;
         } else { // Set minimum PWM output
           sys.spindle_speed = settings.rpm_min;
           pwm_value = SPINDLE_PWM_MIN_VALUE;
