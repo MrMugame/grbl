@@ -21,6 +21,9 @@
 
 #include "grbl.h"
 
+int map(float val, float max, float min, float miny, float maxy) {
+    return (val - min) * (maxy - miny) / (max - min) + miny;
+}
 
 #ifdef VARIABLE_SPINDLE
   static float pwm_gradient; // Precalulated value to speed up rpm to PWM conversions.
@@ -210,7 +213,7 @@ void spindle_stop()
         // Compute intermediate PWM value with linear spindle speed model.
         // NOTE: A nonlinear model could be installed here, if required, but keep it VERY light-weight.
         sys.spindle_speed = rpm;
-        pwm_value = floor((rpm-settings.rpm_min)*pwm_gradient) + SPINDLE_PWM_MIN_VALUE;
+        pwm_value = map(rpm, SPINDLE_MAX_RPM, SPINDLE_MIN_RPM, 15, 30);
       }
       return(pwm_value);
     }
