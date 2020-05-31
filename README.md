@@ -47,6 +47,7 @@ $132 = 6.000    (z max travel, mm)
 ## Important notes
 * To stop the esc from beeping you have to send ```M3``` and then ```S0```.
 * Be carful then homing for the first time it can happen that your homing switches are set correctly. **I AM GIVING ABSOLUTELY NO WARRANTY**
+* My english is not my native language and I apologize for any mistakes.
 
 ## What I have changed
 In the config.h I have set it to use CoreXY so the axis work properly, I have inverted the Z switch(because mine is not an NC), and changed the homing cycle. I have also set the spindle max rpm to 10000 and min to 0 (these are arbitrary numbers because i dont know how fast the spindle goes)\
