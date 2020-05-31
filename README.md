@@ -1,85 +1,54 @@
-![GitHub Logo](https://github.com/gnea/gnea-Media/blob/master/Grbl%20Logo/Grbl%20Logo%20250px.png?raw=true)
+# Grbl for CPCBM with an Arduino Uno
+This is a preconfigured version of grbl for the The Ant compact pcb maker with an Arduino uno
 
-***
-_Click the `Release` tab to download pre-compiled `.hex` files or just [click here](https://github.com/gnea/grbl/releases)_
-***
-Grbl is a no-compromise, high performance, low cost alternative to parallel-port-based motion control for CNC milling. This version of Grbl runs on an Arduino with a 328p processor (Uno, Duemilanove, Nano, Micro, etc).
+## Getting Started
+### Hardware
+The connections are all over the place on the cnc shield! My connections are as follows (I would suggest testing the endstops after flashing the software with ugs):
+![_](https://wallpaperaccess.com/full/1940048.jpg)
 
-The controller is written in highly optimized C utilizing every clever feature of the AVR-chips to achieve precise timing and asynchronous operation. It is able to maintain up to 30kHz of stable, jitter free control pulses.
-
-It accepts standards-compliant g-code and has been tested with the output of several CAM tools with no problems. Arcs, circles and helical motion are fully supported, as well as, all other primary g-code commands. Macro functions, variables, and most canned cycles are not supported, but we think GUIs can do a much better job at translating them into straight g-code anyhow.
-
-Grbl includes full acceleration management with look ahead. That means the controller will look up to 16 motions into the future and plan its velocities ahead to deliver smooth acceleration and jerk-free cornering.
-
-* [Licensing](https://github.com/gnea/grbl/wiki/Licensing): Grbl is free software, released under the GPLv3 license.
-
-* For more information and help, check out our **[Wiki pages!](https://github.com/gnea/grbl/wiki)** If you find that the information is out-dated, please to help us keep it updated by editing it or notifying our community! Thanks!
-
-* Lead Developer: Sungeun "Sonny" Jeon, Ph.D. (USA) aka @chamnit
-
-* Built on the wonderful Grbl v0.6 (2011) firmware written by Simen Svale Skogsrud (Norway).
-
-***
-
-### Official Supporters of the Grbl CNC Project
-![Official Supporters](https://github.com/gnea/gnea-Media/blob/master/Contributors.png?raw=true)
-
-
-***
-
-## Update Summary for v1.1
-- **IMPORTANT:** Your EEPROM will be wiped and restored with new settings. This is due to the addition of two new spindle speed '$' settings.
-
-- **Real-time Overrides** : Alters the machine running state immediately with feed, rapid, spindle speed, spindle stop, and coolant toggle controls. This awesome new feature is common only on industrial machines, often used to optimize speeds and feeds while a job is running. Most hobby CNC's try to mimic this behavior, but usually have large amounts of lag. Grbl executes overrides in realtime and within tens of milliseconds.
-
-- **Jogging Mode** : The new jogging commands are independent of the g-code parser, so that the parser state doesn't get altered and cause a potential crash if not restored properly. Documentation is included on how this works and how it can be used to control your machine via a joystick or rotary dial with a low-latency, satisfying response.
-
-- **Laser Mode** : The new "laser" mode will cause Grbl to move continuously through consecutive G1, G2, and G3 commands with spindle speed changes. When "laser" mode is disabled, Grbl will instead come to a stop to ensure a spindle comes up to speed properly. Spindle speed overrides also work with laser mode so you can tweak the laser power, if you need to during the job. Switch between "laser" mode and "normal" mode via a `$` setting.
-
-	- **Dynamic Laser Power Scaling with Speed** : If your machine has low accelerations, Grbl will automagically scale the laser power based on how fast Grbl is traveling, so you won't have burnt corners when your CNC has to make a turn! Enabled by the `M4` spindle CCW command when laser mode is enabled!
-
-- **Sleep Mode** : Grbl may now be put to "sleep" via a `$SLP` command. This will disable everything, including the stepper drivers. Nice to have when you are leaving your machine unattended and want to power down everything automatically. Only a reset exits the sleep state.
-
-- **Significant Interface Improvements**: Tweaked to increase overall performance, include lots more real-time data, and to simplify maintaining and writing GUIs. Based on direct feedback from multiple GUI developers and bench performance testing. _NOTE: GUIs need to specifically update their code to be compatible with v1.1 and later._
-
-	- **New Status Reports**: To account for the additional override data, status reports have been tweaked to cram more data into it, while still being smaller than before. Documentation is included, outlining how it has been changed. 
-	- **Improved Error/Alarm Feedback** : All Grbl error and alarm messages have been changed to providing a code. Each code is associated with a specific problem, so users will know exactly what is wrong without having to guess. Documentation and an easy to parse CSV is included in the repo.
-	- **Extended-ASCII realtime commands** : All overrides and future real-time commands are defined in the extended-ASCII character space. Unfortunately not easily type-able on a keyboard, but helps prevent accidental commands from a g-code file having these characters and gives lots of space for future expansion.
-	- **Message Prefixes** : Every message type from Grbl has a unique prefix to help GUIs immediately determine what the message is and parse it accordingly without having to know context. The prior interface had several instances of GUIs having to figure out the meaning of a message, which made everything more complicated than it needed to be.
-
-- New OEM specific features, such as safety door parking, single configuration file build option, EEPROM restrictions and restoring controls, and storing product data information.
- 
-- New safety door parking motion as a compile-option. Grbl will retract, disable the spindle/coolant, and park near Z max. When resumed, it will perform these task in reverse order and continue the program. Highly configurable, even to add more than one parking motion. See config.h for details.
-
-- New '$' Grbl settings for max and min spindle rpm. Allows for tweaking the PWM output to more closely match true spindle rpm. When max rpm is set to zero or less than min rpm, the PWM pin D11 will act like a simple enable on/off output.
-
-- Updated G28 and G30 behavior from NIST to LinuxCNC g-code description. In short, if a intermediate motion is specified, only the axes specified will move to the stored coordinates, not all axes as before.
-
-- Lots of minor bug fixes and refactoring to make the code more efficient and flexible.
-
-- **NOTE:** Arduino Mega2560 support has been moved to an active, official Grbl-Mega [project](http://www.github.com/gnea/grbl-Mega/). All new developments here and there will be synced when it makes sense to.
-
-
+### Software
+To get the modified grbl version flashed on your Arduino Uno, you can simply use the [instructions](https://github.com/gnea/grbl/wiki/Compiling-Grbl) given by grbl. After grbl has flashed you have to set a few settings:
 ```
-List of Supported G-Codes in Grbl v1.1:
-  - Non-Modal Commands: G4, G10L2, G10L20, G28, G30, G28.1, G30.1, G53, G92, G92.1
-  - Motion Modes: G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
-  - Feed Rate Modes: G93, G94
-  - Unit Modes: G20, G21
-  - Distance Modes: G90, G91
-  - Arc IJK Distance Modes: G91.1
-  - Plane Select Modes: G17, G18, G19
-  - Tool Length Offset Modes: G43.1, G49
-  - Cutter Compensation Modes: G40
-  - Coordinate System Modes: G54, G55, G56, G57, G58, G59
-  - Control Modes: G61
-  - Program Flow: M0, M1, M2, M30*
-  - Coolant Control: M7*, M8, M9
-  - Spindle Control: M3, M4, M5
-  - Valid Non-Command Words: F, I, J, K, L, N, P, R, S, T, X, Y, Z
+$0 = 10    (step pulse, usec)
+$1 = 25    (step idle delay, msec)
+$2 = 0    (step port invert mask:00000000)
+$3 = 0    (dir port invert mask:00000000)
+$4 = 0    (step enable invert, bool)
+$5 = 1    (limit pins invert, bool)
+$6 = 0    (probe pin invert, bool)
+$10 = 19    (status report mask:00010011)
+$11 = 0.010    (junction deviation, mm)
+$12 = 0.002    (arc tolerance, mm)
+$13 = 0    (report inches, bool)
+$20 = 1    (soft limits, bool)
+$21 = 0    (hard limits, bool)
+$22 = 1    (homing cycle, bool)
+$23 = 3    (homing dir invert mask:00000011)
+$24 = 25.000    (homing feed, mm/min)
+$25 = 500.000    (homing seek, mm/min)
+$26 = 250    (homing debounce, msec)
+$27 = 1.000    (homing pull-off, mm)
+$29 = 1860    (Spindle pwm Max time-on, us)
+$30 = 1060    (Spindle pwm min time-on, us)
+$31 = 1    (Spindle pwm Enabled at startup)
+$100 = 100.000    (x, step/mm)
+$101 = 100.000    (y, step/mm)
+$102 = 800.000    (z, step/mm)
+$110 = 500.000    (x max rate, mm/min)
+$111 = 500.000    (y max rate, mm/min)
+$112 = 500.000    (z max rate, mm/min)
+$120 = 10.000    (x accel, mm/sec^2)
+$121 = 10.000    (y accel, mm/sec^2)
+$122 = 10.000    (z accel, mm/sec^2)
+$130 = 72.000    (x max travel, mm)
+$131 = 118.000    (y max travel, mm)
+$132 = 6.000    (z max travel, mm)
 ```
+## Important notes
+* To stop the esc from beeping you have to send ```M3``` and then ```S0```.
+* Be carful then homing for the first time it can happen that your homing switches are set correctly. **I AM GIVING ABSOLUTELY NO WARRANTY**
 
--------------
-Grbl is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you!
+## What I have changed
+In the config.h I have set it to use CoreXY so the axis work properly, I have inverted the Z switch(because mine is not an NC), and changed the homing cycle. I have also set the spindle max rpm to 10000 and min to 0 (these are arbitrary numbers because i dont know how fast the spindle goes)\
+In the spindle_control.h I have changed many single lines so it makes a signal for an ESC (If you want to know more about pwm signals for ESC look at this [link](https://howtomechatronics.com/tutorials/arduino/arduino-brushless-motor-control-tutorial-esc-bldc/))
 
-[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CUGXJHXA36BYW)
