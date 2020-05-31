@@ -4,7 +4,7 @@ This is a preconfigured version of grbl for the The Ant compact pcb maker with a
 ## Getting Started
 ### Hardware
 The connections are all over the place on the cnc shield! My connections are as follows (I would suggest testing the endstops after flashing the software with ugs):
-![_](https://wallpaperaccess.com/full/1940048.jpg)
+![_](https://raw.githubusercontent.com/MrMugame/grbl/master/doc/Pinout.png)
 
 ### Software
 To get the modified grbl version flashed on your Arduino Uno, you can simply use the [instructions](https://github.com/gnea/grbl/wiki/Compiling-Grbl) given by grbl. After grbl has flashed you have to set a few settings:
