@@ -3,7 +3,7 @@ This is a preconfigured version of grbl for the The Ant compact pcb maker with a
 
 ## Getting Started
 ### Hardware
-The connections are all over the place on the cnc shield! My connections are as follows (I would suggest testing the endstops after flashing the software with ugs):
+The connections are a bit funky. The motors are like in the tutorial and I have 32/1 microstepping. The connections are as follows (I would suggest testing the endstops after flashing the software with ugs):
 ![_](https://raw.githubusercontent.com/MrMugame/grbl/master/doc/Pinout.png)
 
 ### Software
