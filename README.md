@@ -46,7 +46,7 @@ $132 = 6.000    (z max travel, mm)
 ```
 ## Important notes
 * To stop the esc from beeping you have to send ```M3``` and then ```S0```.
-* Be carful then homing for the first time it can happen that your homing switches are set correctly. **I AM GIVING ABSOLUTELY NO WARRANTY**
+* Be carful then homing for the first time it can happen that your homing switches aren't set correctly. **I AM GIVING ABSOLUTELY NO WARRANTY**
 * English is not my native language and I apologize for any mistakes.
 
 ## What I have changed
